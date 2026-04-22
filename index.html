@@ -1,0 +1,580 @@
+<!DOCTYPE html>
+<html lang="ca">
+<head>
+<meta charset="UTF-8">
+<title>ELS ÉSSERS VIUS I LA CÈL·LULA</title>
+
+<style>
+body{
+  font-family: Arial, sans-serif;
+  background: linear-gradient(to right,#d6eaf8,#ebf5fb);
+  padding:20px;
+}
+
+h1{text-align:center;}
+
+.page{
+  display:none;
+  max-width:900px;
+  margin:auto;
+  background:white;
+  padding:30px;
+  border-radius:15px;
+  box-shadow:0 0 10px rgba(0,0,0,0.2);
+}
+
+.page.active{display:block;}
+
+.highlight-normal{ background:#fff176; }
+.highlight-slow{ background:#81d4fa; }
+
+.controls{
+  margin-top:20px;
+  text-align:center;
+  border-top:2px solid #ccc;
+  padding-top:15px;
+}
+
+button{
+  padding:8px 14px;
+  margin:5px;
+  border:none;
+  border-radius:6px;
+  background:#2e86c1;
+  color:white;
+  cursor:pointer;
+}
+
+button:hover{background:#21618c;}
+
+.progress-container{
+  width:100%;
+  height:15px;
+  background:#ddd;
+  border-radius:10px;
+  margin-top:15px;
+}
+
+.progress-bar{
+  height:100%;
+  width:0%;
+  background:#28b463;
+  border-radius:10px;
+  transition:width 0.2s;
+}
+
+.option{
+  display:block;
+  margin:6px 0;
+  padding:6px;
+  cursor:pointer;
+}
+
+.option:hover{ background:#f0f0f0; }
+
+.correct{color:green;font-weight:bold;}
+.incorrect{color:red;font-weight:bold;}
+</style>
+</head>
+<body>
+
+<h1>ELS ÉSSERS VIUS I LA CÈL·LULA</h1>
+
+<!-- ================= PÀGINA 1: NOMÉS TEORIA ================= -->
+
+<div class="page active" id="page1">
+
+<div class="readable">
+
+<h2>1) QUÈ ÉS UN ÉSSER VIU?</h2>
+
+<img src="https://www.torres.es/sites/default/files/migrate/shSYsWsEgshzja-Q_6YzDZQPH11IcJznZXwwdBkhzs0.jpeg"
+     alt="Ésser viu"
+     style="width:50%; display:block; margin:20px auto; border-radius:10px;">
+
+<p>UN ÉSSER VIU ÉS TOT ALLÒ QUE NEIX, CREIX, ES RELACIONA I ES REPRODUEIX.</p>
+
+<p>ELS ÉSSERS VIUS FAN 3 FUNCIONS VITALS:</p>
+
+<p>NUTRICIÓ: MENJAR O ALIMENTAR-SE.</p>
+
+<p>RELACIÓ: RELACIONAR-SE AMB ELS ALTRES.</p>
+
+<p>REPRODUCCIÓ: PODEN TENIR FILLS.</p>
+
+<P>PODEU VEURE EL SEGÜENT VÍDEO:</P>
+
+<a href=https://www.youtube.com/watch?v=WQgwaigJlsI>Vídeo la cèl·lula</a>
+
+</div>
+
+<div class="progress-container">
+<div class="progress-bar"></div>
+</div>
+
+<div class="controls">
+<button onclick="startReading('full')">Lectura normal</button>
+<button onclick="startReading('normal')">Lectura lenta</button>
+<button onclick="pauseReading()">Pausa</button>
+<button onclick="resumeReading()">Reprendre</button>
+<button onclick="stopReading()">Stop</button>
+<button onclick="goToPage(2)">Següent</button>
+</div>
+
+</div>
+
+<!-- ================= PÀGINA 2: NOMÉS PREGUNTES ================= -->
+
+<div class="page" id="page2">
+
+<div class="readable">
+
+<h2>PREGUNTES</h2>
+
+<p>1) QUINA ÉS UNA FUNCIÓ VITAL?</p>
+<div>
+<span class="option" onclick="selectOption(this,false,'r1')">a) DORMIR</span>
+<span class="option" onclick="selectOption(this,true,'r1')">b) NUTRICIÓ</span>
+<span class="option" onclick="selectOption(this,false,'r1')">c) CÓRRER</span>
+</div>
+<p id="r1"></p>
+
+<p>2.) QUÈ FA UN ÉSSER VIU QUAN ES RELACIONA?</p>
+<div>
+<span class="option" onclick="selectOption(this,false,'r2')">a) DORM TOT EL DIA</span>
+<span class="option" onclick="selectOption(this,true,'r2')">b) NOTA EL QUE PASSA I RESPON</span>
+<span class="option" onclick="selectOption(this,false,'r2')">c) NO FA RES</span>
+</div>
+<p id="r2"></p>
+
+<p>3.) ESCRIU EL NOM D'UNA FUNCIÓ VITAL.</p>
+
+</div>
+
+<div class="progress-container">
+<div class="progress-bar"></div>
+</div>
+
+<div class="controls">
+<button onclick="startReading('full')">Lectura normal</button>
+<button onclick="startReading('normal')">Lectura lenta</button>
+<button onclick="pauseReading()">Pausa</button>
+<button onclick="resumeReading()">Reprendre</button>
+<button onclick="stopReading()">Stop</button>
+<button onclick="goToPage(1)">Anterior</button>
+<button onclick="goToPage(3)">Següent apartat</button>
+</div>
+
+</div>
+
+<script>
+let currentPage = 1;
+let words=[];
+let currentIndex=0;
+let speaking=false;
+let mode="normal";
+
+window.onload=function(){
+  prepareText();
+};
+
+function goToPage(num){
+  stopReading();
+  document.getElementById("page"+currentPage).classList.remove("active");
+  currentPage=num;
+  document.getElementById("page"+currentPage).classList.add("active");
+  prepareText();
+}
+
+function prepareText(){
+  let readable=document.querySelector("#page"+currentPage+" .readable");
+
+  readable.querySelectorAll("p, h2").forEach(el=>{
+    let text=el.innerText;
+    el.innerHTML="";
+    text.split(" ").forEach(word=>{
+      let span=document.createElement("span");
+      span.textContent=word+" ";
+      el.appendChild(span);
+    });
+  });
+
+  words=document.querySelectorAll("#page"+currentPage+" .readable span");
+  updateProgress();
+}
+
+function startReading(selectedMode){
+  stopReading();
+  speaking=true;
+  mode=selectedMode;
+
+  if(mode==="full"){
+    let text=document.querySelector("#page"+currentPage+" .readable").innerText;
+    let utter=new SpeechSynthesisUtterance(text);
+    utter.lang="ca-ES";
+    speechSynthesis.speak(utter);
+  } else {
+    speakWord();
+  }
+}
+
+function speakWord(){
+  if(!speaking || currentIndex>=words.length) return;
+
+  words.forEach(w=>{
+    w.classList.remove("highlight-normal");
+    w.classList.remove("highlight-slow");
+  });
+
+  let word=words[currentIndex];
+  word.classList.add(mode==="normal"?"highlight-normal":"highlight-slow");
+
+  let utter=new SpeechSynthesisUtterance(word.textContent);
+  utter.lang="ca-ES";
+
+  utter.onend=function(){
+    if(mode==="slow"){
+      setTimeout(()=>{
+        currentIndex++;
+        updateProgress();
+        speakWord();
+      },1000);
+    } else {
+      currentIndex++;
+      updateProgress();
+      speakWord();
+    }
+  };
+
+  speechSynthesis.speak(utter);
+}
+
+function pauseReading(){ speechSynthesis.pause(); }
+function resumeReading(){ speechSynthesis.resume(); }
+
+function stopReading(){
+  speaking=false;
+  speechSynthesis.cancel();
+  words.forEach(w=>{
+    w.classList.remove("highlight-normal");
+    w.classList.remove("highlight-slow");
+  });
+  currentIndex=0;
+  updateProgress();
+}
+
+function updateProgress(){
+  let percent=(currentIndex/words.length)*100;
+  document.querySelector("#page"+currentPage+" .progress-bar").style.width=percent+"%";
+}
+
+function selectOption(element,correct,resultId){
+  let siblings=element.parentNode.querySelectorAll(".option");
+  siblings.forEach(o=>o.style.fontWeight="normal");
+
+  element.style.fontWeight="bold";
+
+  if(correct){
+    document.getElementById(resultId).innerHTML="<span class='correct'>Correcte!</span>";
+  }else{
+    document.getElementById(resultId).innerHTML="<span class='incorrect'>Incorrecte</span>";
+  }
+}
+</script>
+
+<!-- ================= APARTAT 2 - TEORIA ================= -->
+
+<div class="page" id="page3">
+<div class="readable">
+
+<h2>2) ÉSSERS UNICEL·LULARS I PLURICEL·LULARS</h2>
+
+<p>UNICEL·LULARS: SÓN PETITS I TENEN UNA SOLA CÈL·LULA.</p>
+<p>EXEMPLE: BACTERIS.</p>
+
+<img src="https://content.nationalgeographic.com.es/medio/2022/10/20/fondo-microscopico-de-bacterias-azules_7fc1ea49_1280x746.jpg"
+     alt="Bacteri"
+     style="width:25%; display:block; margin:20px auto; border-radius:10px;">
+
+<p>PLURICEL·LULARS: SÓN MÉS GRANS i TENEN MOLTES CÈL·LULES.</p>
+<p>EXEMPLE: ANIMAL i PLANTES.</p>
+
+<img src="https://img.freepik.com/vector-premium/dibujo-dibujos-animados-planta-que-crece-fuera-olla_782516-41727.jpg?semt=ais_hybrid&w=740&q=80"
+     alt="Planta"
+     style="width:25%; display:block; margin:20px auto; border-radius:10px;">
+
+</div>
+
+<div class="progress-container">
+<div class="progress-bar"></div>
+</div>
+
+<div class="controls">
+<button onclick="startReading('full')">Lectura normal</button>
+<button onclick="startReading('normal')">Lectura lenta</button>
+<button onclick="pauseReading()">Pausa</button>
+<button onclick="resumeReading()">Reprendre</button>
+<button onclick="stopReading()">Stop</button>
+<button onclick="goToPage(2)">Anterior</button>
+<button onclick="goToPage(4)">Següent</button>
+</div>
+</div>
+
+<!-- ================= APARTAT 2 - PREGUNTES ================= -->
+
+<div class="page" id="page4">
+<div class="readable">
+
+<h2>PREGUNTES</h2>
+
+<p>1) UN BACTERI ÉS:</p>
+<div>
+<span class="option" onclick="selectOption(this,false,'r21')">a) PLURICEL·LULAR</span>
+<span class="option" onclick="selectOption(this,true,'r21')">b) UNICEL·LULAR</span>
+<span class="option" onclick="selectOption(this,false,'r21')">c) MINERAL</span>
+</div>
+<p id="r21"></p>
+
+<p>2) UN ELEFANT ÉS:</p>
+<div>
+<span class="option" onclick="selectOption(this,false,'r22')">a) UNICEL·LULAR</span>
+<span class="option" onclick="selectOption(this,true,'r22')">b) PLURICEL·LULAR</span>
+<span class="option" onclick="selectOption(this,false,'r22')">c) INVISIBLE</span>
+</div>
+<p id="r22"></p>
+
+<p>3.) QUINA DIFERÈNCIA HI HA ENTRE UNICEL·LULAR I PLURICEL·LULAR?</p>
+
+</div>
+
+<div class="progress-container">
+<div class="progress-bar"></div>
+</div>
+
+<div class="controls">
+<button onclick="startReading('full')">Lectura normal</button>
+<button onclick="startReading('normal')">Lectura lenta</button>
+<button onclick="pauseReading()">Pausa</button>
+<button onclick="resumeReading()">Reprendre</button>
+<button onclick="stopReading()">Stop</button>
+<button onclick="goToPage(3)">Anterior</button>
+<button onclick="goToPage(5)">Següent</button>
+</div>
+</div>
+
+<!-- ================= APARTAT 3 - TEORIA ================= -->
+
+<div class="page" id="page5">
+<div class="readable">
+
+<h2>3) QUÈ ÉS LA CÈL·LULA?</h2>
+
+<img src="https://concepto.de/wp-content/uploads/2018/04/celula-e1523472422656.jpg"
+     alt="Cèl·lula"
+     style="width:50%; display:block; margin:20px auto; border-radius:10px;">
+
+<p>LA CÈL·LULA ÉS LA PART MÉS PETITA D'UN ÉSSER VIU.</p>
+
+<p>TOTS ELS ÉSSERS VIUS ESTAN FORMATS PER CÈL·LULES.</p>
+
+<p>S'ALIMENTEN (NUTRICIÓ), ES RELACIONEN (RELACIÓ) I PODEN TENIR FILLS (REPRODUCCIÓ) .</p>
+
+</div>
+
+<div class="progress-container">
+<div class="progress-bar"></div>
+</div>
+
+<div class="controls">
+<button onclick="startReading('full')">Lectura normal</button>
+<button onclick="startReading('normal')">Lectura lenta</button>
+<button onclick="pauseReading()">Pausa</button>
+<button onclick="resumeReading()">Reprendre</button>
+<button onclick="stopReading()">Stop</button>
+<button onclick="goToPage(4)">Anterior</button>
+<button onclick="goToPage(6)">Següent</button>
+</div>
+</div>
+
+<!-- ================= APARTAT 3 - PREGUNTES ================= -->
+
+<div class="page" id="page6">
+<div class="readable">
+
+<h2>PREGUNTES</h2>
+
+<p>1) LA CÈL·LULA ÉS:</p>
+<div>
+<span class="option" onclick="selectOption(this,false,'r31')">a) UNA ROCA</span>
+<span class="option" onclick="selectOption(this,true,'r31')">b) LA PART MÉS PETITA D'UN ÉSSER VIU</span>
+<span class="option" onclick="selectOption(this,false,'r31')">c) UN ÒRGAN</span>
+</div>
+<p id="r31"></p>
+
+<p>2) TOTS ELS ÉSSERS VIUS ESTAN FORMATS PER:</p>
+<div>
+<span class="option" onclick="selectOption(this,false,'r32')">a) AIGUA</span>
+<span class="option" onclick="selectOption(this,false,'r32')">b) FUSTA</span>
+<span class="option" onclick="selectOption(this,true,'r32')">c) CÈL·LULES</span>
+</div>
+<p id="r32"></p>
+
+<p>3.) PER QUÈ ÉS IMPORTANT LA CÈL·LULA?</p>
+
+</div>
+
+<div class="progress-container">
+<div class="progress-bar"></div>
+</div>
+
+<div class="controls">
+<button onclick="startReading('full')">Lectura normal</button>
+<button onclick="startReading('normal')">Lectura lenta</button>
+<button onclick="pauseReading()">Pausa</button>
+<button onclick="resumeReading()">Reprendre</button>
+<button onclick="stopReading()">Stop</button>
+<button onclick="goToPage(5)">Anterior</button>
+<button onclick="goToPage(7)">Següent apartat</button>
+</div>
+</div>
+
+<!-- ================= APARTAT 4 - TEORIA ================= -->
+<div class="page" id="page7">
+<div class="readable">
+
+<h2>4) PARTS PRINCIPALS DE LA CÈL·LULA</h2>
+
+<img src="imatge1.jpg" alt="Parts de la cèl·lula" style="max-width:50%; display:block; margin:20px auto; border-radius:10px;">
+
+<p>MEMBRANA: ÉS LA CAPA QUE ENVOLTA LA CÈL·LULA.</p>
+
+<p>CITOPLASMA: ÉS EL LÍQUID INTERIOR.</p>
+
+<p>MATERIAL GENÈTIC: CONTÉ LA INFORMACIÓ DE LA CÈL·LULA.</p>
+
+</div>
+
+<div class="progress-container"><div class="progress-bar"></div></div>
+
+<div class="controls">
+<button onclick="startReading('full')">Lectura normal</button>
+<button onclick="startReading('normal')">Lectura lenta</button>
+<button onclick="pauseReading()">Pausa</button>
+<button onclick="resumeReading()">Reprendre</button>
+<button onclick="stopReading()">Stop</button>
+<button onclick="goToPage(6)">Anterior</button>
+<button onclick="goToPage(8)">Següent</button>
+</div>
+</div>
+
+<!-- ================= APARTAT 4 - PREGUNTES ================= -->
+<div class="page" id="page8">
+<div class="readable">
+
+<h2>PREGUNTES</h2>
+
+<p>1) LA MEMBRANA SERVEIX PER:</p>
+<div>
+<span class="option" onclick="selectOption(this,true,'r41')">a) ENVOLTAR LA CÈL·LULA</span>
+<span class="option" onclick="selectOption(this,false,'r41')">b) FER FOTOSÍNTESI</span>
+<span class="option" onclick="selectOption(this,false,'r41')">c) RESPIRAR</span>
+</div>
+<p id="r41"></p>
+
+<p>2) EL CITOPLASMA ÉS:</p>
+<div>
+<span class="option" onclick="selectOption(this,true,'r42')">a) EL LÍQUID INTERIOR</span>
+<span class="option" onclick="selectOption(this,false,'r42')">b) UNA PARET</span>
+<span class="option" onclick="selectOption(this,false,'r42')">c) UNA FULLA</span>
+</div>
+<p id="r42"></p>
+
+<p>3.) QUINA PART CONTÉ LA INFORMACIÓ DE LA CÈL·LULA?</p>
+
+</div>
+
+<div class="progress-container"><div class="progress-bar"></div></div>
+
+<div class="controls">
+<button onclick="startReading('full')">Lectura normal</button>
+<button onclick="startReading('normal')">Lectura lenta</button>
+<button onclick="pauseReading()">Pausa</button>
+<button onclick="resumeReading()">Reprendre</button>
+<button onclick="stopReading()">Stop</button>
+<button onclick="goToPage(7)">Anterior</button>
+<button onclick="goToPage(9)">Següent</button>
+</div>
+</div>
+
+<!-- ================= APARTAT 5 - TEORIA ================= -->
+<div class="page" id="page9">
+<div class="readable">
+
+<h2>5) ORGÀNULS IMPORTANTS</h2>
+
+<img src="https://cdn0.ecologiaverde.com/es/posts/8/7/2/cloroplasto_y_mitocondria_3278_9_600.jpg"
+     alt="Cloroplast i mitocondri"
+     style="width:50%; display:block; margin:20px auto; border-radius:10px;">
+
+<p>DINS LA CÈL·LULA HI HA PARTS PETITES QUE FAN FEINES IMPORTANTS.</p>
+
+<p>MITOCONDRI: FA QUE LA CÈL·LULA RESPIRI.</p>
+
+<p>CLOROPLAST: FA LA FOTOSÍNTESI DE LES PLANTES.</p>
+
+</div>
+
+<div class="progress-container"><div class="progress-bar"></div></div>
+
+<div class="controls">
+<button onclick="startReading('full')">Lectura normal</button>
+<button onclick="startReading('normal')">Lectura lenta</button>
+<button onclick="pauseReading()">Pausa</button>
+<button onclick="resumeReading()">Reprendre</button>
+<button onclick="stopReading()">Stop</button>
+<button onclick="goToPage(8)">Anterior</button>
+<button onclick="goToPage(10)">Següent</button>
+</div>
+</div>
+
+<!-- ================= APARTAT 5 - PREGUNTES ================= -->
+<div class="page" id="page10">
+<div class="readable">
+
+<h2>PREGUNTES</h2>
+
+<p>1) QUIN ORGÀNUL FA RESPIRAR LA CÈL·LULA?</p>
+<div>
+<span class="option" onclick="selectOption(this,false,'r51')">a) CLOROPLAST</span>
+<span class="option" onclick="selectOption(this,true,'r51')">b) MITOCONDRI</span>
+<span class="option" onclick="selectOption(this,false,'r51')">c) MEMBRANA</span>
+</div>
+<p id="r51"></p>
+
+<p>2) QUIN ORGÀNUL FA LA FOTOSÍNTESI?</p>
+<div>
+<span class="option" onclick="selectOption(this,true,'r52')">a) CLOROPLAST</span>
+<span class="option" onclick="selectOption(this,false,'r52')">b) MITOCONDRI</span>
+<span class="option" onclick="selectOption(this,false,'r52')">c) CITOPLASMA</span>
+</div>
+<p id="r52"></p>
+
+<p>3.) EN QUINES CÈL·LULES HI HA CLOROPLAST?</p>
+
+</div>
+
+<div class="progress-container"><div class="progress-bar"></div></div>
+
+<div class="controls">
+<button onclick="startReading('full')">Lectura normal</button>
+<button onclick="startReading('normal')">Lectura lenta</button>
+<button onclick="pauseReading()">Pausa</button>
+<button onclick="resumeReading()">Reprendre</button>
+<button onclick="stopReading()">Stop</button>
+<button onclick="goToPage(9)">Anterior</button>
+<button onclick="goToPage(1)">Tornar a començar</button>
+</div>
+</div>
+
+</body>
+</html>
