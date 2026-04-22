@@ -183,16 +183,38 @@ function goToPage(num){
 }
 
 function prepareText(){
+
   let readable=document.querySelector("#page"+currentPage+" .readable");
 
   readable.querySelectorAll("p, h2").forEach(el=>{
-    let text=el.innerText;
-    el.innerHTML="";
-    text.split(" ").forEach(word=>{
-      let span=document.createElement("span");
-      span.textContent=word+" ";
-      el.appendChild(span);
+
+    let nodes = Array.from(el.childNodes);
+    el.innerHTML = "";
+
+    nodes.forEach(node => {
+
+      if(node.nodeType === 3){ // text normal
+        node.textContent.split(" ").forEach(word=>{
+          let span=document.createElement("span");
+          span.textContent=word+" ";
+          el.appendChild(span);
+        });
+      }
+
+      else if(node.nodeType === 1){ // etiqueta (strong, b...)
+        let newEl = node.cloneNode(false);
+
+        node.textContent.split(" ").forEach(word=>{
+          let span=document.createElement("span");
+          span.textContent=word+" ";
+          newEl.appendChild(span);
+        });
+
+        el.appendChild(newEl);
+      }
+
     });
+
   });
 
   words=document.querySelectorAll("#page"+currentPage+" .readable span");
