@@ -272,7 +272,7 @@ function resumeReading(){ speechSynthesis.resume(); }
 
 function stopReading(){
   speaking=false;
-  speechSynthesis.cancel();
+  speechSynthesis.cancel(); // 🔥 evita repeticions
   words.forEach(w=>{
     w.classList.remove("highlight-normal");
     w.classList.remove("highlight-slow");
