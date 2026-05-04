@@ -241,8 +241,6 @@ function speakWord(){
   if(!speaking) return; // 🔥 evita duplicacions
   if(currentIndex>=words.length) return;
 
-  speechSynthesis.cancel(); // 🔥 evita cues duplicades
-
   words.forEach(w=>{
     w.classList.remove("highlight-normal");
     w.classList.remove("highlight-slow");
