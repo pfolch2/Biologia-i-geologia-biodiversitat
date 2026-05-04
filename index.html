@@ -222,9 +222,10 @@ function prepareText(){
 }
 
 function startReading(selectedMode){
-  stopReading();
+  stopReading(); // assegura neteja total
   speaking=true;
   mode=selectedMode;
+  currentIndex = 0; // 🔥 important reiniciar sempre
 
   if(mode==="full"){
     let text=document.querySelector("#page"+currentPage+" .readable").innerText;
@@ -237,7 +238,10 @@ function startReading(selectedMode){
 }
 
 function speakWord(){
-  if(!speaking || currentIndex>=words.length) return;
+  if(!speaking) return; // 🔥 evita duplicacions
+  if(currentIndex>=words.length) return;
+
+  speechSynthesis.cancel(); // 🔥 evita cues duplicades
 
   words.forEach(w=>{
     w.classList.remove("highlight-normal");
